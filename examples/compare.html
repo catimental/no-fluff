@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>no-fluff 화면 글 비교</title>
+<style>
+:root {
+  --bg: #f4f4f5; --panel: #ffffff; --ink: #18181b; --muted: #71717a;
+  --line: #e4e4e7; --accent: #2563eb; --track: #d4d4d8;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f0f11; --panel: #1c1c1f; --ink: #f4f4f5; --muted: #a1a1aa;
+          --line: #2e2e33; --accent: #60a5fa; --track: #3f3f46; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+       font: 14px/1.5 system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; }
+main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 20px; margin: 0 0 24px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+@media (max-width: 800px) { .pair { grid-template-columns: 1fr; } }
+.lang { font-size: 13px; font-weight: 600; color: var(--muted); margin: 0 0 8px; }
+.arm { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+       letter-spacing: .04em; margin: 0 0 8px; }
+.frame { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+.frame > * + * { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line); }
+
+/* 생성된 마크업 공통 스타일 */
+.frame h2 { font-size: 16px; margin: 0 0 12px; }
+.frame h3 { font-size: 15px; margin: 0 0 8px; }
+.frame p { margin: 4px 0 12px; color: var(--muted); }
+.frame header p { margin-top: -6px; }
+.frame fieldset { border: 0; padding: 0; margin: 16px 0 0; }
+.frame legend { font-weight: 600; margin-bottom: 8px; padding: 0; }
+.frame .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.frame label { display: block; }
+.frame ul { list-style: none; margin: 0; padding: 0; }
+.setting-row, .setting, .toggle-row, .frame li {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 10px 0; border-bottom: 1px solid var(--line); }
+.setting-row p, .setting-text p { margin: 2px 0 0; font-size: 13px; }
+.frame label:has(> input[role=switch]) { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.time-range, .dnd-fields, .time-field { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.time-range .field, .dnd-fields .field { display: flex; align-items: center; gap: 6px; }
+.frame fieldset > label:not(:has(input[role=switch])) { display: inline-block; margin-right: 6px; }
+.frame input[type=time] { font: inherit; color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; margin-right: 12px; }
+.frame button { font: inherit; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--ink); padding: 6px 14px; cursor: pointer; }
+.frame button[type=submit], .button--primary, .btn-primary, .button-primary,
+.empty-state button, [data-action=create-project] {
+  background: var(--accent); border-color: var(--accent); color: #fff; }
+.settings-form__actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.frame form > button[type=submit], section > button[type=submit] { margin-top: 16px; }
+.empty-state { text-align: center; padding: 16px 0; }
+.empty-state svg { color: var(--muted); }
+.empty-state__actions { display: flex; gap: 12px; justify-content: center; align-items: center; }
+.frame a { color: var(--accent); }
+.toast, .toast-region .toast { display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.toast p { margin: 0; }
+.toast__title, .toast-title { color: var(--ink) !important; font-weight: 600; }
+.toast__content, .toast-body { flex: 1; }
+.toast-close, .toast__close { margin-left: auto; padding: 2px 8px; }
+[role=status]:not(.toast-region):not(:has(.toast)) { padding: 12px 14px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--bg); }
+
+/* 스위치 */
+.frame input[role=switch] { appearance: none; width: 36px; height: 20px; border-radius: 10px;
+  background: var(--track); position: relative; cursor: pointer; flex: none; margin: 0; }
+.frame input[role=switch]::after { content: ""; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .15s; }
+.frame input[role=switch]:checked { background: var(--accent); }
+.frame input[role=switch]:checked::after { left: 18px; }
+.frame button[role=switch] { width: 36px; height: 20px; padding: 0; border: 0; border-radius: 10px;
+  background: var(--track); position: relative; flex: none; }
+.frame button[role=switch]::after { content: ""; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+.frame button[role=switch][aria-checked=true] { background: var(--accent); }
+.frame button[role=switch][aria-checked=true]::after { left: 18px; }
+.frame button[role=switch] span { display: none; }
+
+.frame .setting, .frame .row { flex-wrap: wrap; }
+.frame .setting p, .frame .row p { flex-basis: 100%; margin: 0; font-size: 13px; }
+.note { color: var(--muted); margin: -4px 0 12px; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+<h1>no-fluff-writing 화면 글 시험 결과</h1>
+
+<p class="lang">English</p>
+<div class="pair">
+<div>
+<p class="arm">스킬 없음</p>
+<div class="frame">
+<section class="settings-section" aria-labelledby="c-en-h">
+  <header class="settings-section__header">
+    <h2 id="c-en-h">Notifications</h2>
+    <p>Choose how and when you hear about activity in your projects.</p>
+  </header>
+  <form class="settings-form" onsubmit="return false">
+    <fieldset class="settings-group">
+      <legend>Channels</legend>
+      <div class="setting-row">
+        <div class="setting-row__text">
+          <label>Email notifications</label>
+          <p>Get emails about assignments, mentions, and due dates.</p>
+        </div>
+        <button type="button" role="switch" aria-checked="true"><span></span></button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-row__text">
+          <label>Push notifications</label>
+          <p>Receive alerts on your devices when something needs your attention.</p>
+        </div>
+        <button type="button" role="switch" aria-checked="false"><span></span></button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-row__text">
+          <label>Weekly digest</label>
+          <p>A summary of progress across your projects, sent every Monday morning.</p>
+        </div>
+        <button type="button" role="switch" aria-checked="true"><span></span></button>
+      </div>
+    </fieldset>
+    <fieldset class="settings-group">
+      <legend>Quiet hours</legend>
+      <p>Push notifications are paused during this time. Times use your local time zone.</p>
+      <div class="time-range">
+        <div class="field"><label for="c-en-s">From</label><input type="time" id="c-en-s" value="22:00"></div>
+        <span aria-hidden="true">to</span>
+        <div class="field"><label for="c-en-e">Until</label><input type="time" id="c-en-e" value="07:00"></div>
+      </div>
+    </fieldset>
+    <div class="settings-form__actions">
+      <button type="button">Reset</button>
+      <button type="submit" class="button--primary">Save changes</button>
+    </div>
+  </form>
+</section>
+<section class="empty-state" aria-labelledby="c-en-p">
+  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="8" y="14" width="48" height="38" rx="6" stroke="currentColor" stroke-width="2"/><path d="M8 24h48" stroke="currentColor" stroke-width="2"/><path d="M18 34h14M18 42h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  <h2 id="c-en-p">No projects yet</h2>
+  <p>Projects keep your tasks, files, and teammates in one place. Create your first project to get started.</p>
+  <button type="button" data-action="create-project">Create your first project</button>
+</section>
+<div class="toast-region">
+  <div class="toast" role="status">
+    <div class="toast__content">
+      <p class="toast__title">Settings saved</p>
+      <p>Your changes are syncing to your other devices.</p>
+    </div>
+    <button type="button" class="toast__close" aria-label="Dismiss notification">✕</button>
+  </div>
+</div>
+</div>
+</div>
+
+<div>
+<p class="arm">스킬 있음</p>
+<div class="frame">
+<section aria-labelledby="s-en-h">
+  <h2 id="s-en-h">Notifications</h2>
+  <form onsubmit="return false">
+    <div class="setting"><label for="s-en-1">Email</label><input type="checkbox" role="switch" id="s-en-1"></div>
+    <div class="setting"><label for="s-en-2">Push</label><input type="checkbox" role="switch" id="s-en-2"></div>
+    <div class="setting"><label for="s-en-3">Weekly digest</label><input type="checkbox" role="switch" id="s-en-3"></div>
+    <fieldset>
+      <legend>Quiet hours</legend>
+      <div class="time-range">
+        <label for="s-en-s">Start</label><input type="time" id="s-en-s">
+        <label for="s-en-e">End</label><input type="time" id="s-en-e">
+      </div>
+    </fieldset>
+    <button type="submit">Save</button>
+  </form>
+</section>
+<section aria-labelledby="s-en-p">
+  <h2 id="s-en-p">Projects</h2>
+  <div class="empty-state">
+    <p>No projects.</p>
+    <button type="button">Create project</button>
+  </div>
+</section>
+<div class="toast" role="status">
+  <p>Settings saved and synced to your other devices.</p>
+  <button type="button" class="toast-close" aria-label="Dismiss">Dismiss</button>
+</div>
+</div>
+</div>
+</div>
+
+<p class="lang">한국어</p>
+<div class="pair">
+<div>
+<p class="arm">스킬 없음</p>
+<div class="frame">
+<section class="settings-section" aria-labelledby="c-ko-h">
+  <h2 id="c-ko-h">알림</h2>
+  <p>알림을 받을 방법과 시간을 정합니다. 변경 내용은 로그인한 모든 기기에 적용됩니다.</p>
+  <ul class="setting-list">
+    <li class="setting-row">
+      <div class="setting-text"><label>이메일 알림</label><p>담당자 지정, 댓글 멘션, 마감일 변경을 이메일로 받습니다.</p></div>
+      <button type="button" role="switch" aria-checked="true"></button>
+    </li>
+    <li class="setting-row">
+      <div class="setting-text"><label>푸시 알림</label><p>브라우저와 모바일 앱으로 즉시 알림을 받습니다.</p></div>
+      <button type="button" role="switch" aria-checked="true"></button>
+    </li>
+    <li class="setting-row">
+      <div class="setting-text"><label>주간 요약</label><p>매주 월요일 오전 9시에 지난주 진행 상황과 이번 주 마감 작업을 이메일로 보냅니다.</p></div>
+      <button type="button" role="switch" aria-checked="false"></button>
+    </li>
+  </ul>
+  <fieldset class="dnd">
+    <legend>방해 금지 시간대</legend>
+    <p>이 시간에는 푸시 알림을 보내지 않습니다. 이메일은 영향을 받지 않습니다.</p>
+    <div class="dnd-fields">
+      <div class="field"><label for="c-ko-s">시작 시각</label><input type="time" id="c-ko-s" value="22:00"></div>
+      <div class="field"><label for="c-ko-e">종료 시각</label><input type="time" id="c-ko-e" value="08:00"></div>
+    </div>
+    <p>종료 시각이 시작 시각보다 이르면 다음 날 종료로 처리합니다.</p>
+  </fieldset>
+</section>
+<section class="empty-state" aria-labelledby="c-ko-p">
+  <h2 id="c-ko-p">아직 프로젝트가 없습니다</h2>
+  <p>프로젝트를 만들면 작업, 일정, 팀원을 한곳에서 관리할 수 있습니다.</p>
+  <div class="empty-state__actions">
+    <button type="button" class="btn-primary">첫 프로젝트 만들기</button>
+    <a href="#">프로젝트 시작 가이드</a>
+  </div>
+</section>
+<div class="toast-region">
+  <div class="toast" role="status">
+    <div class="toast-body">
+      <p class="toast-title">설정이 저장되었습니다</p>
+      <p>다른 기기에도 동기화되었습니다.</p>
+    </div>
+    <button type="button" class="toast-close" aria-label="알림 닫기">닫기</button>
+  </div>
+</div>
+</div>
+</div>
+
+<div>
+<p class="arm">스킬 있음</p>
+<div class="frame">
+<section aria-labelledby="s-ko-h">
+  <h2 id="s-ko-h">알림</h2>
+  <div class="setting-row"><label for="s-ko-1">이메일</label><input type="checkbox" role="switch" id="s-ko-1"></div>
+  <div class="setting-row"><label for="s-ko-2">푸시</label><input type="checkbox" role="switch" id="s-ko-2"></div>
+  <div class="setting-row"><label for="s-ko-3">주간 요약</label><input type="checkbox" role="switch" id="s-ko-3"></div>
+  <fieldset>
+    <legend>방해 금지 시간</legend>
+    <div class="setting-row"><label for="s-ko-s">시작</label><input type="time" id="s-ko-s"></div>
+    <div class="setting-row"><label for="s-ko-e">종료</label><input type="time" id="s-ko-e"></div>
+  </fieldset>
+</section>
+<section aria-labelledby="s-ko-p">
+  <h2 id="s-ko-p">프로젝트</h2>
+  <div class="empty-state">
+    <p>프로젝트가 없습니다.</p>
+    <button type="button">프로젝트 만들기</button>
+  </div>
+</section>
+<div class="toast" role="status">
+  <p>설정이 저장되어 다른 기기에 동기화되었습니다.</p>
+</div>
+</div>
+</div>
+</div>
+
+<p class="lang">과제에 사실 3개를 넣었을 때 (스킬 있음)</p>
+<p class="note">주간 요약 발송 시각, 방해 금지 시간에 멈추는 대상, 종료가 시작보다 이른 경우의 처리를 과제에 적었습니다.</p>
+<div class="pair">
+<div>
+<p class="arm">English</p>
+<div class="frame">
+<section aria-labelledby="f-en-h">
+  <h2 id="f-en-h">Notifications</h2>
+  <form onsubmit="return false">
+    <div class="setting"><label for="f-en-1">Email</label><input type="checkbox" role="switch" id="f-en-1"></div>
+    <div class="setting"><label for="f-en-2">Push</label><input type="checkbox" role="switch" id="f-en-2"></div>
+    <div class="setting"><label for="f-en-3">Weekly digest</label><input type="checkbox" role="switch" id="f-en-3">
+      <p>Sent every Monday at 9:00.</p></div>
+    <fieldset>
+      <legend>Quiet hours</legend>
+      <p>Mutes push only. Email still arrives. An end time earlier than the start time means the next day.</p>
+      <div class="time-range">
+        <label for="f-en-s">Start</label><input type="time" id="f-en-s">
+        <label for="f-en-e">End</label><input type="time" id="f-en-e">
+      </div>
+    </fieldset>
+    <button type="submit">Save</button>
+  </form>
+</section>
+</div>
+</div>
+<div>
+<p class="arm">한국어</p>
+<div class="frame">
+<section aria-labelledby="f-ko-h">
+  <h2 id="f-ko-h">알림</h2>
+  <div class="row setting-row"><label for="f-ko-1">이메일</label><input type="checkbox" role="switch" id="f-ko-1"></div>
+  <div class="row setting-row"><label for="f-ko-2">푸시</label><input type="checkbox" role="switch" id="f-ko-2"></div>
+  <div class="row setting-row"><label for="f-ko-3">주간 요약</label><input type="checkbox" role="switch" id="f-ko-3">
+    <p>매주 월요일 9시에 발송됩니다.</p></div>
+  <fieldset>
+    <legend>방해 금지 시간</legend>
+    <div class="row setting-row"><label for="f-ko-s">시작</label><input type="time" id="f-ko-s"></div>
+    <div class="row setting-row"><label for="f-ko-e">종료</label><input type="time" id="f-ko-e"></div>
+    <p>이 시간에는 푸시만 중지됩니다. 이메일은 발송됩니다. 종료 시각이 시작 시각보다 이르면 다음 날 종료로 처리됩니다.</p>
+  </fieldset>
+  <button type="submit">저장</button>
+</section>
+</div>
+</div>
+</div>
+
+</main>
+<script>
+document.querySelectorAll('button[role=switch]').forEach(b =>
+  b.addEventListener('click', () => b.setAttribute('aria-checked', b.getAttribute('aria-checked') !== 'true')));
+</script>
+</body>
+</html>

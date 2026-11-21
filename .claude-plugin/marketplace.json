@@ -1,0 +1,15 @@
+{
+  "name": "no-fluff",
+  "description": "Marketplace for the no-fluff skill",
+  "owner": {
+    "name": "catimental"
+  },
+  "plugins": [
+    {
+      "name": "no-fluff",
+      "description": "One skill that cuts fluff from prose and screen text: plain verbs, no personified software, no em-dash asides, no unmeasured adjectives, no labels or helper lines that repeat. Korean appendix included.",
+      "version": "1.0.0",
+      "source": "./"
+    }
+  ]
+}
